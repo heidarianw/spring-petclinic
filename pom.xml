@@ -148,6 +148,16 @@
           </dependency>
         </dependencies>
         <configuration>
+          <targetClasses>
+            <param>org.springframework.samples.petclinic.model*</param>
+            <param>org.springframework.samples.petclinic.owner.OwnerController</param>
+            <param>org.springframework.samples.petclinic.owner.PetController</param>
+            <param>org.springframework.samples.petclinic.owner.PetTypeFormatter</param>
+            <param>org.springframework.samples.petclinic.owner.VisitController</param>
+            <param>org.springframework.samples.petclinic.system.CrashController</param>
+            <param>org.springframework.samples.petclinic.vet.VetController</param>
+            <param>org.springframework.samples.petclinic.vet.Vet</param>
+          </targetClasses>
           <outputFormats>
             <format>HTML</format>
           </outputFormats>
