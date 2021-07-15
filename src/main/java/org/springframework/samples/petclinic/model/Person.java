@@ -51,4 +51,8 @@ public class Person extends BaseEntity {
 		this.lastName = lastName;
 	}
 
+	public int getFirstNameLength() {
+		return this.firstName.length();
+	}
+
 }
