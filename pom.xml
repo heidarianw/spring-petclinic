@@ -157,6 +157,11 @@
           <include>MODIFIED,ADDED</include>
           <targetClasses>
             <param>org.springframework.samples.petclinic.owner.Owner</param>
+            <param>org.springframework.samples.petclinic.owner.OwnerController</param>
+            <param>org.springframework.samples.petclinic.system.CrashController</param>
+            <param>org.springframework.samples.petclinic.vet.VetController</param>
+            <param>org.springframework.samples.petclinic.vet.Vet</param>
+            <param>org.springframework.samples.petclinic.model*</param>
           </targetClasses>
           <outputFormats>
             <format>HTML</format>
