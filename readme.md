@@ -1,9 +1,4 @@
-# Code Coverage Lab
-
-<!-- 
-    Optional: Add a coverage badge to your README to show the coverage on your project.
-    E.g.: [![codecov](https://codecov.io/gh/<github-username>/code-coverage/branch/main/graph/badge.svg?token=<codecov-token>)](https://codecov.io/gh/<github-username>/code-coverage)
--->
+# Mutation Testing Lab
 
 ## Prerequisites
 
@@ -21,6 +16,8 @@
    git clone https://github.com/heidarianw/spring-petclinic
    ```
 3. _Optional_: If you have SDKMAN! installed, you can run `sdk env` at the root of the project to configure the environment
+
+Note: This readme is text only. These instructions can be found in the presentation deck as well with added visuals.
 
 ## Running
 
