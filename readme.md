@@ -84,14 +84,18 @@ At the root of the project, run
       <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
 
       ```xml
-      
+      <dependency>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-junit5-plugin</artifactId>
+        <version>0.14</version>
+      </dependency>
       ```
    </details>
 3. Run the unit tests again
    ```bash
    ./mvnw clean test
    ```
-   Notice that the `jacoco:check` goal has failed with the following console output
+   Notice that after the unit tests run, the mutation tests will run
    ```bash
    ...
    [INFO] --- jacoco-maven-plugin:0.8.6:check (check-coverage) @ codecoverage ---
