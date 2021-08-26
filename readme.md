@@ -95,151 +95,220 @@ At the root of the project, run
    ```bash
    ./mvnw clean test
    ```
-   Notice that after the unit tests run, the mutation tests will run
+   Notice that after the unit tests run, the mutation tests will run.
    ```bash
-   ...
-   [INFO] --- jacoco-maven-plugin:0.8.6:check (check-coverage) @ codecoverage ---
-   [INFO] Loading execution data file /Users/caleb.fung/Documents/2021/sigs/devops/lab/code-coverage/target/jacoco.exec
-   [INFO] Analyzed bundle 'codecoverage' with 2 classes
-   [WARNING] Rule violated for bundle codecoverage: lines covered ratio is 0.59, but expected minimum is 0.85
-   [INFO] ------------------------------------------------------------------------
-   [INFO] BUILD FAILURE
-   [INFO] ------------------------------------------------------------------------
-   ...
+    ...
+    >> Line Coverage: 222/238 (93%)
+    >> Generated 111 mutations Killed 75 (68%)
+    >> Mutations with no coverage 8. Test strength 73%
+    >> Ran 242 tests (2.18 tests per mutation)
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    ...
+   ```
+   Mutation tests can also be run separate from the test phase using the following command
+   ```bash
+   ./mvnw org.pitest:pitest-maven:mutationCoverage
    ```
    We'll update the test necessary to fix the build. First, let's take a look at the JaCoCo coverage report.
    JaCoCo generates `jacoco.exec` - a binary file with coverage report data.
    You can view the coverage report from the [index.html](./target/site/jacoco/index.html) file.
-4. You can leverage coverage checks or metrics in code coverage frameworks like JaCoCo to fail your build in a CI pipeline.
-   When you integrate coverage checks and report generation into your CI pipelines,
-   you can automate the coverage check process and encourage continuous improvement in a DevOps environment.
-   To run unit tests and generate a coverage report, update the [`build.yml`](./.github/workflows/build.yml) GitHub Actions workflow.
-   <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
-      
-      ```yaml
-      - name: Run tests
-        run: mvn test
-      ```
-   </details>
+4. Mutation testing results can be viewed in the [index.html](./target/pit-reports) file. Information on how to read this file can be found on slide 15 of the presentation deck.
+   
+   To find this file navigate to the `index.html` file found in `target/pit-reports/<timestamped folder>/index.html`
 
-   Typically, in a project with a CI pipeline, you would include a coverage step to ensure that code that is added/updated are covered by unit tests.
-   If there is insufficient code coverage, the build should fail.
-   
-   > **Important!** GitHub automatically disables GitHub Actions in forked repositories. Navigate to the Actions tab and enable GitHub Actions before pushing up your changes.
-   
-   Commit your changed files and push them up to the main branch
-   ```bash
-   git add .github/workflows/build.yml pom.xml
-   git commit -m "ci: Run unit tests and generate coverage report in GitHub Actions workflow"
-   git push
-   ```
-   Navigate to the Actions tab and select the Build workflow to see your workflow run.
-5. Note that the Run tests job within the Build workflow will fail.
-   From the console logs, confirm that the job failed because code coverage constraints haven't been met
-   ```text
-   ...
-   [INFO] --- jacoco-maven-plugin:0.8.6:check (check-coverage) @ codecoverage ---
-   [INFO] Loading execution data file /Users/caleb.fung/Documents/2021/sigs/devops/lab/code-coverage/target/jacoco.exec
-   [INFO] Analyzed bundle 'codecoverage' with 2 classes
-   WARNING: Rule violated for bundle codecoverage: lines covered ratio is 0.59, but expected minimum is 0.85
-   [INFO] ------------------------------------------------------------------------
-   [INFO] BUILD FAILURE
-   [INFO] ------------------------------------------------------------------------
-   ...
-   ```
-6. You can configure a code coverage tool like [Codecov](https://about.codecov.io/) for more features and insights on code coverage for you application.
-   For this lab, we'll simply upload the [`jacoco.xml`](./target/site/jacoco/jacoco.xml) coverage report file to Codecov, which will generate an interactive starburst chart.
-   Head over to the Codecov site and register your code coverage GitHub repo, e.g., `https://github.com/<github-username>/code-coverage`.
-   Once, your repo has been configured, navigate to the Settings tab and copy the Repository Upload Token from the General section.
-   Your token should look like the following
-   ```text
-   xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-   ```
-   To add this token to your GitHub repo, navigate to your GitHub repo and select the Settings tab.
-   Go to the Secrets section and click on New Repository Secret.
-   Add the following values for your repository secret
-   
-   | Field  | Value                                    |
-   | ------ | ---------------------------------------- |
-   | Name   | CODECOV_TOKEN                            |
-   | Value  | \<Your Codecov Repository Upload Token\> |
-   
-   _Optional_: Add a coverage badge to this README by navigating to the Badge section in the Settings tab of your Codecov project.
-   Copy the text under Markdown and paste it at the top of this README file.
-7. To fix the build and increase code coverage, update the unit test for [`UnscrableServiceTest#unscramblesMatrix`](./src/test/java/com/credera/codecoverage/service/UnscrambleServiceTest.java).
-   <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
-      
-      ```java
-      class UnscrambleServiceTest {
-         // ...
-         void unscramblesMatrix() {
-             final int[][] matrix = {{3, 3}, {6, 6}};
-             final String expectedLines = "==\n==";
-      
-             String unscrabledMatrix = unscrambleService.unscramble(matrix);
-      
-             assertEquals(unscrabledMatrix, expectedLines);
-         }
-      }
-      ```
-   </details>
+## Adding Target Classes
+Target classes can be configured in the pom file so that only the desired classes are mutated during testing. Classes can be targeted individually or by folder. Classes that do not have unit tests or classes that would not be useful for mutation testing (i.e. configuration classes) can be left out to cut down on extraneous results and runtime.
+1. Add the following target classes to the `configuration` section under `targetClasses`
 
-   Commit and push up your changes to run the GitHub Actions workflow
-   ```bash
-   git add src/test/java/com/credera/codecoverage/service/UnscrambleServiceTest.java
-   git commit -m "test: Update unscramble service unit test to ensure it unnscrambles a matrix"
-   git push
-   ```
-   Code coverage reports are a great way to show business and leadership how stable an application's code generally is.
-8. Add an additional check for branch coverage in the `pom.xml` file.
-   There won't be any noticeable change to the coverage results because code coverage is already at 100%.
-   <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>
-         
+    <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+
       ```xml
-      <limit>
-         <counter>BRANCH</counter>
-         <value>COVEREDRATIO</value>
-         <minimum>0.9</minimum>
-      </limit>
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.6.7</version>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <goals>
+              <goal>mutationCoverage</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>0.14</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <targetClasses>
+            <param>org.springframework.samples.petclinic.owner.Owner</param>
+            <param>org.springframework.samples.petclinic.owner.OwnerController</param>
+            <param>org.springframework.samples.petclinic.system.CrashController</param>
+            <param>org.springframework.samples.petclinic.vet.VetController</param>
+            <param>org.springframework.samples.petclinic.vet.Vet</param>
+            <param>org.springframework.samples.petclinic.model*</param>
+          </targetClasses>
+          <outputFormats>
+            <format>HTML</format>
+          </outputFormats>
+        </configuration>
+      </plugin>
       ```
    </details>
+    
+2. Run the mutation testing goal again and notice the difference in runtime
+    ```bash
+    ./mvnw org.pitest:pitest-maven:mutationCoverage
+    ```
    
-   Commit and push up your changes to run the GitHub Actions workflow
-   ```bash
-   git add pom.xml
-   git commit -m "ci: Add branch coverage check"
-   git push
-   ```
+## Killing A Surviving Mutation
+1. In the Pitest report navigate to `org.springframework.samples.petclinic.owner > Owner.java`.
+    * On line 102 we can see a mutation that survived
+2. Click on the number `1` next to the line number `102`
+    * In this case a call to `PropertyComparator.sort()` was removed and the unit test responsible for this line still passed
+3. In the project navigate to the [ClinicServiceTests.java](./src/test/java/org/springframework/samples/petclinic/service/ClinicServiceTests.java) file in the `service` folder and find the `shouldFindSingleOwnerWithPet()` test.
+4. Add an assertion to this test at the end that checks for properly sorted pets
+    <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
 
-## Future Considerations
+      ```
+      @Test
+	    void shouldFindSingleOwnerWithPet() {
+            Owner owner = this.owners.findById(3);
+            assertThat(owner.getLastName()).startsWith("Rodriquez");
+            assertThat(owner.getPets()).hasSize(2);
+            assertThat(owner.getPets().get(0).getType()).isNotNull();
+            assertThat(owner.getPets().get(0).getType().getName()).isEqualTo("dog");
+            assertThat(owner.getPets().get(0).getName()).isEqualTo("Jewel");
+	    }
+      ```
+   </details>
+5. Re-run the mutation testing goal and check the report. Notice that the mutation on line 102 is now killed.
 
-* In addition to statement and branch coverage, there are other coverage metrics you should consider for code.
-  [NASA's guide](https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf) on Modified Condition/Decision Coverage includes a great table on the types of structural coverage
-  
-  | Coverage Criteria                                                                                  | Statement<br>Coverage | Decision<br>Coverage | Condition<br>Coverage | Condition/<br>Decision<br>Coverage | MC/DC | Multiple<br>Condition<br>Coverage |
-  |----------------------------------------------------------------------------------                  | :-------------------: | :------------------: | :-------------------: | :--------------------------------: | :---: | :-------------------------------: |
-  | Every point of entry and exit in the<br>program has been invoked at least<br>once                  |                       | *                    | *                     | *                                  | *     | *                                 |
-  | Every statement in the program<br>has been invoked at least once                                   | *                     |                      |                       |                                    |       |                                   |
-  | Every decision in the program has<br>taken all possible outcomes at least<br>once                  |                       | *                    |                       | *                                  | *     | *                                 |
-  | Every condition in a decision in the<br>program has taken all possible<br>outcomes at least once   |                       |                      | *                     | *                                  | *     | *                                 |
-  | Every condition in a decision has<br>been shown to independently affect<br>that decision’s outcome |                       |                      |                       |                                    | *     | *<sup>+</sup>                     |
-  | Every combination of condition<br>outcomes within a decision has<br>been invoked at least once     |                       |                      |                       |                                    |       | *                                 |
+## SCM Mutation Coverage Analysis
+Pitest can be configured to integrate with SCM in order to only mutate classes that contain the specified status of code (i.e. ADDED/MODIFIED). This is useful for saving time when developing locally by allowing you to quickly run mutation testing against newly written code.
 
-  <sup>+</sup> _Multiple condition coverage does not explicitly require showing the independent effect of each condition.
-  This will be done, in most cases, by showing that every combination of decision inputs has been invoked.
-  Note, however, that logical expressions exist wherein every condition cannot have an independent effect._
+1. Change the goal in the Pitest plugin to `scmMutationCoverage` and specify the status of the code to included as `MODIFIED,ADDED`
 
-* Besides GitHub actions, there are other CI solutions you can explore to integrate and automate code coverage reports with
-   * Jenkins
-   * GitLab CI
-   * Azure DevOps
-   * JetBrains TeamCity
-   * AWS CodeBuild
-* Implementing code coverage in a project and generating code coverage reports isn't enough to ensure high code quality.
-   It's also important to integrate a static code analysis tool like [SonarQube](https://www.sonarqube.org/) to detect bugs, code smells, and security vulnerabilities.
-   JaCoCo integrates nicely with SonarQube.
-* In addition to implementing static code analysis tools, you can track metrics for your application with tools such as [Graphite](https://graphiteapp.org/) or [Prometheus](https://prometheus.io/).
-   These metrics can help you and your client make informed decisions to improve user experience.
+    <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+
+      ```xml
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.6.7</version>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <goals>
+              <goal>scmMutationCoverage</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>0.14</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <include>MODIFIED,ADDED</include>
+          <targetClasses>
+            <param>org.springframework.samples.petclinic.owner.Owner</param>
+            <param>org.springframework.samples.petclinic.owner.OwnerController</param>
+            <param>org.springframework.samples.petclinic.system.CrashController</param>
+            <param>org.springframework.samples.petclinic.vet.VetController</param>
+            <param>org.springframework.samples.petclinic.vet.Vet</param>
+            <param>org.springframework.samples.petclinic.model*</param>
+          </targetClasses>
+          <outputFormats>
+            <format>HTML</format>
+          </outputFormats>
+        </configuration>
+      </plugin>
+      ```
+   </details>
+
+2. Configure SCM with the repo URL at the top level of the pom file
+
+    <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+
+      ```xml
+      <scm>
+        <connection>scm:git:https://github.com/heidarianw/spring-petclinic.git</connection>
+        <developerConnection>scm:git:https://github.com/heidarianw/spring-petclinic.git</developerConnection>
+        <url>https://github.com/heidarianw/spring-petclinic.git</url>
+      </scm>
+      ```
+   </details>
+
+3. Add the Maven SCM plugin to the pom file
+    <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+
+      ```xml
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-scm-plugin</artifactId>
+        <version>1.11.2</version>
+        <configuration>
+          <connectionType>connection</connectionType>
+        </configuration>
+      </plugin>
+      ```
+   </details>
+
+4. Navigate to the [Person.java](./src/main/java/org/springframework/samples/petclinic/model/Person.java) file in the `model` folder and add a new method (Example found in solution below).
+    <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+
+      ```
+        @MappedSuperclass
+        public class Person extends BaseEntity {
+        
+            @Column(name = "first_name")
+            @NotEmpty
+            private String firstName;
+        
+            @Column(name = "last_name")
+            @NotEmpty
+            private String lastName;
+        
+            public String getFirstName() {
+                return this.firstName;
+            }
+        
+            public void setFirstName(String firstName) {
+                this.firstName = firstName;
+            }
+        
+            public String getLastName() {
+                return this.lastName;
+            }
+        
+            public void setLastName(String lastName) {
+                this.lastName = lastName;
+            }
+        
+            public int getFirstNameLength() {
+                return this.firstName.length();
+            }
+        
+        }
+      ```
+   </details>
+
+5. Run the `scmMutationCoverage` command
+    ```bash
+    ./mvnw org.pitest:pitest-maven:scmMutationCoverage
+    ```
+6. Navigate to the mutation testing report and notice that only the class with modified code was analized in the mutation testing analysis
