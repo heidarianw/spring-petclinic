@@ -1,135 +1,280 @@
-# Spring PetClinic Sample Application [![Build Status](https://travis-ci.org/spring-projects/spring-petclinic.png?branch=main)](https://travis-ci.org/spring-projects/spring-petclinic/)
+# Code Coverage Lab
 
-## Understanding the Spring Petclinic application with a few diagrams
-<a href="https://speakerdeck.com/michaelisvy/spring-petclinic-sample-application">See the presentation here</a>
+<!-- 
+    Optional: Add a coverage badge to your README to show the coverage on your project.
+    E.g.: [![codecov](https://codecov.io/gh/<github-username>/code-coverage/branch/main/graph/badge.svg?token=<codecov-token>)](https://codecov.io/gh/<github-username>/code-coverage)
+-->
 
-## Running petclinic locally
-Petclinic is a [Spring Boot](https://spring.io/guides/gs/spring-boot) application built using [Maven](https://spring.io/guides/gs/maven/). You can build a jar file and run it from the command line:
+## Prerequisites
 
+1. Install Java 8. Note that you will not need to install Maven because you can run Maven wrapper with `./mvnw` (or `./mvnw.cmd` on Windows).
+    * _Optional_: Install Java 8 with a version manager tool like [SDKMAN!](https://sdkman.io/install)
+    * _Alternative_: Use [jenv](https://www.jenv.be/) on MacOS with [Homebrew](https://brew.sh/)
+      ```bash
+      brew install java8
+      sudo ln -sfn /usr/local/opt/openjdk@8/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-8.jdk
+      jenv add /Library/Java/JavaVirtualMachines/openjdk-8.jdk/Contents/Home/
+      jenv shell 8
+      ```
+2. Fork this repository and clone it
+    ```bash
+   git clone https://github.com/heidarianw/spring-petclinic
+   ```
+3. _Optional_: If you have SDKMAN! installed, you can run `sdk env` at the root of the project to configure the environment
 
-```
-git clone https://github.com/spring-projects/spring-petclinic.git
-cd spring-petclinic
-./mvnw package
-java -jar target/*.jar
-```
+## Running
 
-You can then access petclinic here: http://localhost:8080/
-
-<img width="1042" alt="petclinic-screenshot" src="https://cloud.githubusercontent.com/assets/838318/19727082/2aee6d6c-9b8e-11e6-81fe-e889a5ddfded.png">
-
-Or you can run it from Maven directly using the Spring Boot Maven plugin. If you do this it will pick up changes that you make in the project immediately (changes to Java source files require a compile as well - most people use an IDE for this):
-
-```
+To verify you have set up the application correctly, run the Spring Boot console application.
+At the root of the project, run
+```bash
 ./mvnw spring-boot:run
 ```
 
-> NOTE: Windows users should set `git config core.autocrlf true` to avoid format assertions failing the build (use `--global` to set that flag globally).
+## Coverage
 
-## In case you find a bug/suggested improvement for Spring Petclinic
-Our issue tracker is available here: https://github.com/spring-projects/spring-petclinic/issues
+1. Run the unit tests for the project and verify that all tests pass
+   ```bash
+   ./mvnw clean test
+   ```
+   You should see the following output in the console
+   ```text
+   ...
+   [INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
+   [INFO]
+   [INFO] ------------------------------------------------------------------------
+   [INFO] BUILD SUCCESS
+   [INFO] ------------------------------------------------------------------------
+   ...
+   ```
+2. Add JaCoCo to your project. In the [`pom.xml`](./pom.xml) file, add the JaCoCo plugin and configure it to generate a coverage report during the test phase.
+   Add a coverage check to ensure that the ratio for lines of code covered by unit tests is at least 85%.
+   Refer to the [JaCoCo documentation](https://www.eclemma.org/jacoco/trunk/doc/check-mojo.html) for more information on coverage checks.
+   <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      
+      ```xml
+      <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <!-- Or, the latest JaCoCo Maven plugin version -->
+          <version>0.8.6</version>
+          <configuration>
+              <!-- Exclude the main application class -->
+              <excludes>
+                  <exclude>**/CodecoverageApplication.*</exclude>
+              </excludes>
+          </configuration>
+          <executions>
+              <execution>
+                  <goals>
+                      <goal>prepare-agent</goal>
+                  </goals>
+              </execution>
+              <execution>
+                  <!--
+                      Generates the JaCoCo coverage report during the Maven test phase.
+                      JaCoCo report is generated after all unit tests complete successfully.
+                  -->
+                  <id>report</id>
+                  <phase>test</phase>
+                  <goals>
+                      <goal>report</goal>
+                  </goals>
+              </execution>
+              <execution>
+                  <!-- Coverage configuration -->
+                  <id>check-coverage</id>
+                  <phase>test</phase>
+                  <goals>
+                      <goal>check</goal>
+                  </goals>
+                  <configuration>
+                      <!--
+                          See https://www.eclemma.org/jacoco/trunk/doc/check-mojo.html for additional information
+                          on configuring jacoco:check
+                      -->
+                      <skip>false</skip>
+                      <haltOnFailure>true</haltOnFailure>
+                      <rules>
+                          <rule>
+                              <!--
+                                  Checks for sufficient coverage across the entire bundle.
+                                  Additional scopes include: PACKAGE, CLASS, SOURCEFILE, and METHOD.
+                              -->
+                              <element>BUNDLE</element>
+                              <limits>
+                                  <!--
+                                      Check that lines of code covered by unit tests out of total lines in the
+                                      application should be above 85%.
+                                      Additional limits include: INSTRUCTION, BRANCH, COMPLEXITY, METHOD, and
+                                      CLASS.
+                                      Additional values for limits include: TOTALCOUNT, COVEREDCOUNT, and
+                                      MISSEDCOUNT.
+                                  -->
+                                  <limit>
+                                      <counter>LINE</counter>
+                                      <value>COVEREDRATIO</value>
+                                      <minimum>0.85</minimum>
+                                  </limit>
+                                  <!-- TODO: In step 8, add another check for branch coverage here -->
+                              </limits>
+                          </rule>
+                      </rules>
+                  </configuration>
+              </execution>
+          </executions>
+      </plugin>
+      ```
+   </details>
+3. Run the unit tests again
+   ```bash
+   ./mvnw clean test
+   ```
+   Notice that the `jacoco:check` goal has failed with the following console output
+   ```bash
+   ...
+   [INFO] --- jacoco-maven-plugin:0.8.6:check (check-coverage) @ codecoverage ---
+   [INFO] Loading execution data file /Users/caleb.fung/Documents/2021/sigs/devops/lab/code-coverage/target/jacoco.exec
+   [INFO] Analyzed bundle 'codecoverage' with 2 classes
+   [WARNING] Rule violated for bundle codecoverage: lines covered ratio is 0.59, but expected minimum is 0.85
+   [INFO] ------------------------------------------------------------------------
+   [INFO] BUILD FAILURE
+   [INFO] ------------------------------------------------------------------------
+   ...
+   ```
+   We'll update the test necessary to fix the build. First, let's take a look at the JaCoCo coverage report.
+   JaCoCo generates `jacoco.exec` - a binary file with coverage report data.
+   You can view the coverage report from the [index.html](./target/site/jacoco/index.html) file.
+4. You can leverage coverage checks or metrics in code coverage frameworks like JaCoCo to fail your build in a CI pipeline.
+   When you integrate coverage checks and report generation into your CI pipelines,
+   you can automate the coverage check process and encourage continuous improvement in a DevOps environment.
+   To run unit tests and generate a coverage report, update the [`build.yml`](./.github/workflows/build.yml) GitHub Actions workflow.
+   <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      
+      ```yaml
+      - name: Run tests
+        run: mvn test
+      ```
+   </details>
 
+   Typically, in a project with a CI pipeline, you would include a coverage step to ensure that code that is added/updated are covered by unit tests.
+   If there is insufficient code coverage, the build should fail.
+   
+   > **Important!** GitHub automatically disables GitHub Actions in forked repositories. Navigate to the Actions tab and enable GitHub Actions before pushing up your changes.
+   
+   Commit your changed files and push them up to the main branch
+   ```bash
+   git add .github/workflows/build.yml pom.xml
+   git commit -m "ci: Run unit tests and generate coverage report in GitHub Actions workflow"
+   git push
+   ```
+   Navigate to the Actions tab and select the Build workflow to see your workflow run.
+5. Note that the Run tests job within the Build workflow will fail.
+   From the console logs, confirm that the job failed because code coverage constraints haven't been met
+   ```text
+   ...
+   [INFO] --- jacoco-maven-plugin:0.8.6:check (check-coverage) @ codecoverage ---
+   [INFO] Loading execution data file /Users/caleb.fung/Documents/2021/sigs/devops/lab/code-coverage/target/jacoco.exec
+   [INFO] Analyzed bundle 'codecoverage' with 2 classes
+   WARNING: Rule violated for bundle codecoverage: lines covered ratio is 0.59, but expected minimum is 0.85
+   [INFO] ------------------------------------------------------------------------
+   [INFO] BUILD FAILURE
+   [INFO] ------------------------------------------------------------------------
+   ...
+   ```
+6. You can configure a code coverage tool like [Codecov](https://about.codecov.io/) for more features and insights on code coverage for you application.
+   For this lab, we'll simply upload the [`jacoco.xml`](./target/site/jacoco/jacoco.xml) coverage report file to Codecov, which will generate an interactive starburst chart.
+   Head over to the Codecov site and register your code coverage GitHub repo, e.g., `https://github.com/<github-username>/code-coverage`.
+   Once, your repo has been configured, navigate to the Settings tab and copy the Repository Upload Token from the General section.
+   Your token should look like the following
+   ```text
+   xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   ```
+   To add this token to your GitHub repo, navigate to your GitHub repo and select the Settings tab.
+   Go to the Secrets section and click on New Repository Secret.
+   Add the following values for your repository secret
+   
+   | Field  | Value                                    |
+   | ------ | ---------------------------------------- |
+   | Name   | CODECOV_TOKEN                            |
+   | Value  | \<Your Codecov Repository Upload Token\> |
+   
+   _Optional_: Add a coverage badge to this README by navigating to the Badge section in the Settings tab of your Codecov project.
+   Copy the text under Markdown and paste it at the top of this README file.
+7. To fix the build and increase code coverage, update the unit test for [`UnscrableServiceTest#unscramblesMatrix`](./src/test/java/com/credera/codecoverage/service/UnscrambleServiceTest.java).
+   <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      
+      ```java
+      class UnscrambleServiceTest {
+         // ...
+         void unscramblesMatrix() {
+             final int[][] matrix = {{3, 3}, {6, 6}};
+             final String expectedLines = "==\n==";
+      
+             String unscrabledMatrix = unscrambleService.unscramble(matrix);
+      
+             assertEquals(unscrabledMatrix, expectedLines);
+         }
+      }
+      ```
+   </details>
 
-## Database configuration
+   Commit and push up your changes to run the GitHub Actions workflow
+   ```bash
+   git add src/test/java/com/credera/codecoverage/service/UnscrambleServiceTest.java
+   git commit -m "test: Update unscramble service unit test to ensure it unnscrambles a matrix"
+   git push
+   ```
+   Code coverage reports are a great way to show business and leadership how stable an application's code generally is.
+8. Add an additional check for branch coverage in the `pom.xml` file.
+   There won't be any noticeable change to the coverage results because code coverage is already at 100%.
+   <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>
+         
+      ```xml
+      <limit>
+         <counter>BRANCH</counter>
+         <value>COVEREDRATIO</value>
+         <minimum>0.9</minimum>
+      </limit>
+      ```
+   </details>
+   
+   Commit and push up your changes to run the GitHub Actions workflow
+   ```bash
+   git add pom.xml
+   git commit -m "ci: Add branch coverage check"
+   git push
+   ```
 
-In its default configuration, Petclinic uses an in-memory database (H2) which
-gets populated at startup with data. The h2 console is automatically exposed at `http://localhost:8080/h2-console`
-and it is possible to inspect the content of the database using the `jdbc:h2:mem:testdb` url.
- 
-A similar setup is provided for MySql in case a persistent database configuration is needed. Note that whenever the database type is changed, the app needs to be run with a different profile: `spring.profiles.active=mysql` for MySql.
+## Future Considerations
 
-You could start MySql locally with whatever installer works for your OS, or with docker:
+* In addition to statement and branch coverage, there are other coverage metrics you should consider for code.
+  [NASA's guide](https://shemesh.larc.nasa.gov/fm/papers/Hayhurst-2001-tm210876-MCDC.pdf) on Modified Condition/Decision Coverage includes a great table on the types of structural coverage
+  
+  | Coverage Criteria                                                                                  | Statement<br>Coverage | Decision<br>Coverage | Condition<br>Coverage | Condition/<br>Decision<br>Coverage | MC/DC | Multiple<br>Condition<br>Coverage |
+  |----------------------------------------------------------------------------------                  | :-------------------: | :------------------: | :-------------------: | :--------------------------------: | :---: | :-------------------------------: |
+  | Every point of entry and exit in the<br>program has been invoked at least<br>once                  |                       | *                    | *                     | *                                  | *     | *                                 |
+  | Every statement in the program<br>has been invoked at least once                                   | *                     |                      |                       |                                    |       |                                   |
+  | Every decision in the program has<br>taken all possible outcomes at least<br>once                  |                       | *                    |                       | *                                  | *     | *                                 |
+  | Every condition in a decision in the<br>program has taken all possible<br>outcomes at least once   |                       |                      | *                     | *                                  | *     | *                                 |
+  | Every condition in a decision has<br>been shown to independently affect<br>that decision’s outcome |                       |                      |                       |                                    | *     | *<sup>+</sup>                     |
+  | Every combination of condition<br>outcomes within a decision has<br>been invoked at least once     |                       |                      |                       |                                    |       | *                                 |
 
-```
-docker run -e MYSQL_USER=petclinic -e MYSQL_PASSWORD=petclinic -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=petclinic -p 3306:3306 mysql:5.7.8
-```
+  <sup>+</sup> _Multiple condition coverage does not explicitly require showing the independent effect of each condition.
+  This will be done, in most cases, by showing that every combination of decision inputs has been invoked.
+  Note, however, that logical expressions exist wherein every condition cannot have an independent effect._
 
-Further documentation is provided [here](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources/db/mysql/petclinic_db_setup_mysql.txt).
-
-## Working with Petclinic in your IDE
-
-### Prerequisites
-The following items should be installed in your system:
-* Java 8 or newer (full JDK not a JRE).
-* git command line tool (https://help.github.com/articles/set-up-git)
-* Your preferred IDE 
-  * Eclipse with the m2e plugin. Note: when m2e is available, there is an m2 icon in `Help -> About` dialog. If m2e is
-  not there, just follow the install process here: https://www.eclipse.org/m2e/
-  * [Spring Tools Suite](https://spring.io/tools) (STS)
-  * IntelliJ IDEA
-  * [VS Code](https://code.visualstudio.com)
-
-### Steps:
-
-1) On the command line
-    ```
-    git clone https://github.com/spring-projects/spring-petclinic.git
-    ```
-2) Inside Eclipse or STS
-    ```
-    File -> Import -> Maven -> Existing Maven project
-    ```
-
-    Then either build on the command line `./mvnw generate-resources` or using the Eclipse launcher (right click on project and `Run As -> Maven install`) to generate the css. Run the application main method by right clicking on it and choosing `Run As -> Java Application`.
-
-3) Inside IntelliJ IDEA
-    In the main menu, choose `File -> Open` and select the Petclinic [pom.xml](pom.xml). Click on the `Open` button.
-
-    CSS files are generated from the Maven build. You can either build them on the command line `./mvnw generate-resources` or right click on the `spring-petclinic` project then `Maven -> Generates sources and Update Folders`.
-
-    A run configuration named `PetClinicApplication` should have been created for you if you're using a recent Ultimate version. Otherwise, run the application by right clicking on the `PetClinicApplication` main class and choosing `Run 'PetClinicApplication'`.
-
-4) Navigate to Petclinic
-
-    Visit [http://localhost:8080](http://localhost:8080) in your browser.
-
-
-## Looking for something in particular?
-
-|Spring Boot Configuration | Class or Java property files  |
-|--------------------------|---|
-|The Main Class | [PetClinicApplication](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java) |
-|Properties Files | [application.properties](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/resources) |
-|Caching | [CacheConfiguration](https://github.com/spring-projects/spring-petclinic/blob/main/src/main/java/org/springframework/samples/petclinic/system/CacheConfiguration.java) |
-
-## Interesting Spring Petclinic branches and forks
-
-The Spring Petclinic "main" branch in the [spring-projects](https://github.com/spring-projects/spring-petclinic)
-GitHub org is the "canonical" implementation, currently based on Spring Boot and Thymeleaf. There are
-[quite a few forks](https://spring-petclinic.github.io/docs/forks.html) in a special GitHub org
-[spring-petclinic](https://github.com/spring-petclinic). If you have a special interest in a different technology stack
-that could be used to implement the Pet Clinic then please join the community there.
-
-
-## Interaction with other open source projects
-
-One of the best parts about working on the Spring Petclinic application is that we have the opportunity to work in direct contact with many Open Source projects. We found some bugs/suggested improvements on various topics such as Spring, Spring Data, Bean Validation and even Eclipse! In many cases, they've been fixed/implemented in just a few days.
-Here is a list of them:
-
-| Name | Issue |
-|------|-------|
-| Spring JDBC: simplify usage of NamedParameterJdbcTemplate | [SPR-10256](https://jira.springsource.org/browse/SPR-10256) and [SPR-10257](https://jira.springsource.org/browse/SPR-10257) |
-| Bean Validation / Hibernate Validator: simplify Maven dependencies and backward compatibility |[HV-790](https://hibernate.atlassian.net/browse/HV-790) and [HV-792](https://hibernate.atlassian.net/browse/HV-792) |
-| Spring Data: provide more flexibility when working with JPQL queries | [DATAJPA-292](https://jira.springsource.org/browse/DATAJPA-292) |
-
-
-# Contributing
-
-The [issue tracker](https://github.com/spring-projects/spring-petclinic/issues) is the preferred channel for bug reports, features requests and submitting pull requests.
-
-For pull requests, editor preferences are available in the [editor config](.editorconfig) for easy use in common text editors. Read more and download plugins at <https://editorconfig.org>. If you have not previously done so, please fill out and submit the [Contributor License Agreement](https://cla.pivotal.io/sign/spring).
-
-# License
-
-The Spring PetClinic sample application is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
-
-[spring-petclinic]: https://github.com/spring-projects/spring-petclinic
-[spring-framework-petclinic]: https://github.com/spring-petclinic/spring-framework-petclinic
-[spring-petclinic-angularjs]: https://github.com/spring-petclinic/spring-petclinic-angularjs 
-[javaconfig branch]: https://github.com/spring-petclinic/spring-framework-petclinic/tree/javaconfig
-[spring-petclinic-angular]: https://github.com/spring-petclinic/spring-petclinic-angular
-[spring-petclinic-microservices]: https://github.com/spring-petclinic/spring-petclinic-microservices
-[spring-petclinic-reactjs]: https://github.com/spring-petclinic/spring-petclinic-reactjs
-[spring-petclinic-graphql]: https://github.com/spring-petclinic/spring-petclinic-graphql
-[spring-petclinic-kotlin]: https://github.com/spring-petclinic/spring-petclinic-kotlin
-[spring-petclinic-rest]: https://github.com/spring-petclinic/spring-petclinic-rest
+* Besides GitHub actions, there are other CI solutions you can explore to integrate and automate code coverage reports with
+   * Jenkins
+   * GitLab CI
+   * Azure DevOps
+   * JetBrains TeamCity
+   * AWS CodeBuild
+* Implementing code coverage in a project and generating code coverage reports isn't enough to ensure high code quality.
+   It's also important to integrate a static code analysis tool like [SonarQube](https://www.sonarqube.org/) to detect bugs, code smells, and security vulnerabilities.
+   JaCoCo integrates nicely with SonarQube.
+* In addition to implementing static code analysis tools, you can track metrics for your application with tools such as [Graphite](https://graphiteapp.org/) or [Prometheus](https://prometheus.io/).
+   These metrics can help you and your client make informed decisions to improve user experience.
