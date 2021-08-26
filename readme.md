@@ -52,76 +52,39 @@ At the root of the project, run
       
       ```xml
       <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <!-- Or, the latest JaCoCo Maven plugin version -->
-          <version>0.8.6</version>
-          <configuration>
-              <!-- Exclude the main application class -->
-              <excludes>
-                  <exclude>**/CodecoverageApplication.*</exclude>
-              </excludes>
-          </configuration>
-          <executions>
-              <execution>
-                  <goals>
-                      <goal>prepare-agent</goal>
-                  </goals>
-              </execution>
-              <execution>
-                  <!--
-                      Generates the JaCoCo coverage report during the Maven test phase.
-                      JaCoCo report is generated after all unit tests complete successfully.
-                  -->
-                  <id>report</id>
-                  <phase>test</phase>
-                  <goals>
-                      <goal>report</goal>
-                  </goals>
-              </execution>
-              <execution>
-                  <!-- Coverage configuration -->
-                  <id>check-coverage</id>
-                  <phase>test</phase>
-                  <goals>
-                      <goal>check</goal>
-                  </goals>
-                  <configuration>
-                      <!--
-                          See https://www.eclemma.org/jacoco/trunk/doc/check-mojo.html for additional information
-                          on configuring jacoco:check
-                      -->
-                      <skip>false</skip>
-                      <haltOnFailure>true</haltOnFailure>
-                      <rules>
-                          <rule>
-                              <!--
-                                  Checks for sufficient coverage across the entire bundle.
-                                  Additional scopes include: PACKAGE, CLASS, SOURCEFILE, and METHOD.
-                              -->
-                              <element>BUNDLE</element>
-                              <limits>
-                                  <!--
-                                      Check that lines of code covered by unit tests out of total lines in the
-                                      application should be above 85%.
-                                      Additional limits include: INSTRUCTION, BRANCH, COMPLEXITY, METHOD, and
-                                      CLASS.
-                                      Additional values for limits include: TOTALCOUNT, COVEREDCOUNT, and
-                                      MISSEDCOUNT.
-                                  -->
-                                  <limit>
-                                      <counter>LINE</counter>
-                                      <value>COVEREDRATIO</value>
-                                      <minimum>0.85</minimum>
-                                  </limit>
-                                  <!-- TODO: In step 8, add another check for branch coverage here -->
-                              </limits>
-                          </rule>
-                      </rules>
-                  </configuration>
-              </execution>
-          </executions>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.6.7</version>
+        <executions>
+          <execution>
+            <phase>test</phase>
+            <goals>
+              <goal>mutationCoverage</goal>
+            </goals>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>0.14</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <outputFormats>
+            <format>HTML</format>
+          </outputFormats>
+        </configuration>
       </plugin>
+      ```
+   </details>
+   
+2. Add the Pitest JUnit 5 dependency
+   <details>
+      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+
+      ```xml
+      
       ```
    </details>
 3. Run the unit tests again
