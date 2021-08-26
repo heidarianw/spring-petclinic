@@ -27,7 +27,7 @@ At the root of the project, run
 ./mvnw spring-boot:run
 ```
 
-## Coverage
+## Running Tests
 
 1. Run the unit tests for the project and verify that all tests pass
    ```bash
@@ -35,17 +35,18 @@ At the root of the project, run
    ```
    You should see the following output in the console
    ```text
-   ...
-   [INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0
-   [INFO]
-   [INFO] ------------------------------------------------------------------------
-   [INFO] BUILD SUCCESS
-   [INFO] ------------------------------------------------------------------------
-   ...
+    ...
+    [WARNING] Tests run: 40, Failures: 0, Errors: 0, Skipped: 1
+    [INFO] 
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD SUCCESS
+    [INFO] ------------------------------------------------------------------------
+    ...
    ```
-2. Add JaCoCo to your project. In the [`pom.xml`](./pom.xml) file, add the JaCoCo plugin and configure it to generate a coverage report during the test phase.
-   Add a coverage check to ensure that the ratio for lines of code covered by unit tests is at least 85%.
-   Refer to the [JaCoCo documentation](https://www.eclemma.org/jacoco/trunk/doc/check-mojo.html) for more information on coverage checks.
+
+## Basic Pitest Mutation Testing Setup
+1. Add Pitest to your project. In the [`pom.xml`](./pom.xml) file, add the Pitest plugin and configure it to generate a coverage report during the test phase.
+   Refer to the [Pitest quick start documentation](https://pitest.org/quickstart/maven/) for more information on Pitest configuration.
    <details>
       <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
       
