@@ -48,7 +48,7 @@ At the root of the project, run
 1. Add Pitest to your project. In the [`pom.xml`](./pom.xml) file, add the Pitest plugin and configure it to generate a coverage report during the test phase.
    Refer to the [Pitest quick start documentation](https://pitest.org/quickstart/maven/) for more information on Pitest configuration.
    <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>   
       
       ```xml
       <plugin>
@@ -81,7 +81,7 @@ At the root of the project, run
    
 2. Add the Pitest JUnit 5 dependency
    <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>
 
       ```xml
       <dependency>
@@ -111,9 +111,6 @@ At the root of the project, run
    ```bash
    ./mvnw org.pitest:pitest-maven:mutationCoverage
    ```
-   We'll update the test necessary to fix the build. First, let's take a look at the JaCoCo coverage report.
-   JaCoCo generates `jacoco.exec` - a binary file with coverage report data.
-   You can view the coverage report from the [index.html](./target/site/jacoco/index.html) file.
 4. Mutation testing results can be viewed in the [index.html](./target/pit-reports) file. Information on how to read this file can be found on slide 15 of the presentation deck.
    
    To find this file navigate to the `index.html` file found in `target/pit-reports/<timestamped folder>/index.html`
@@ -123,7 +120,7 @@ Target classes can be configured in the pom file so that only the desired classe
 1. Add the following target classes to the `configuration` section under `targetClasses`
 
     <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>   
 
       ```xml
       <plugin>
@@ -175,7 +172,7 @@ Target classes can be configured in the pom file so that only the desired classe
 3. In the project navigate to the [ClinicServiceTests.java](./src/test/java/org/springframework/samples/petclinic/service/ClinicServiceTests.java) file in the `service` folder and find the `shouldFindSingleOwnerWithPet()` test.
 4. Add an assertion to this test at the end that checks for properly sorted pets
     <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>   
 
       ```
       @Test
@@ -190,6 +187,8 @@ Target classes can be configured in the pom file so that only the desired classe
       ```
    </details>
 5. Re-run the mutation testing goal and check the report. Notice that the mutation on line 102 is now killed.
+   
+    Note: you may need to run `./mvnw clean test` in order to see the new results
 
 ## SCM Mutation Coverage Analysis
 Pitest can be configured to integrate with SCM in order to only mutate classes that contain the specified status of code (i.e. ADDED/MODIFIED). This is useful for saving time when developing locally by allowing you to quickly run mutation testing against newly written code.
@@ -197,7 +196,7 @@ Pitest can be configured to integrate with SCM in order to only mutate classes t
 1. Change the goal in the Pitest plugin to `scmMutationCoverage` and specify the status of the code to included as `MODIFIED,ADDED`
 
     <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>   
 
       ```xml
       <plugin>
@@ -237,10 +236,10 @@ Pitest can be configured to integrate with SCM in order to only mutate classes t
       ```
    </details>
 
-2. Configure SCM with the repo URL at the top level of the pom file
+2. Configure SCM with the repo URL at the project level of the pom file
 
     <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>   
 
       ```xml
       <scm>
@@ -253,7 +252,7 @@ Pitest can be configured to integrate with SCM in order to only mutate classes t
 
 3. Add the Maven SCM plugin to the pom file
     <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>   
 
       ```xml
       <plugin>
@@ -269,7 +268,7 @@ Pitest can be configured to integrate with SCM in order to only mutate classes t
 
 4. Navigate to the [Person.java](./src/main/java/org/springframework/samples/petclinic/model/Person.java) file in the `model` folder and add a new method (Example found in solution below).
     <details>
-      <summary>Solution <i>(Attempt to complete this step on your own first!)</i></summary>   
+      <summary>Solution</summary>
 
       ```
         @MappedSuperclass
